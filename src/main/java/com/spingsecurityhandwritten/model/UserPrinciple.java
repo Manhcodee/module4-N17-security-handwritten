@@ -2,7 +2,6 @@ package com.spingsecurityhandwritten.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -13,13 +12,17 @@ import java.util.Objects;
 public class UserPrinciple implements UserDetails {
     private static final long serialVersionUID = 1L;
 
-    private long id;
+    private Long id;
+
     private String username;
+
     private String password;
 
     private Collection<? extends GrantedAuthority> roles;
 
-    public UserPrinciple(Long id, String username, String password, Collection<? extends GrantedAuthority> roles) {
+    public UserPrinciple(Long id,
+                         String username, String password,
+                         Collection<? extends GrantedAuthority> roles) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -28,10 +31,11 @@ public class UserPrinciple implements UserDetails {
 
     public static UserPrinciple build(AppUser user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (AppRole a : user.getRoll()) {
-            authorities.add(new SimpleGrantedAuthority(a.getName));
+        for (AppRole a : user.getRoll()){
+            authorities.add(new SimpleGrantedAuthority(a.getName()));
         }
         return new UserPrinciple(user.getId(), user.getUsername(), user.getPassword(), authorities);
+
     }
 
     public Long getId() {
@@ -39,19 +43,20 @@ public class UserPrinciple implements UserDetails {
     }
 
     @Override
-    public String getUserName() {
-        return username();
+    public String getUsername() {
+        return username;
     }
 
     @Override
-    public String getPasswoed() {
-        return password();
+    public String getPassword() {
+        return password;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -60,6 +65,11 @@ public class UserPrinciple implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
@@ -73,7 +83,7 @@ public class UserPrinciple implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UserPrinciple user =(UserPrinciple) o;
+        UserPrinciple user = (UserPrinciple) o;
         return Objects.equals(id, user.id);
     }
 

@@ -3,7 +3,7 @@ package com.spingsecurityhandwritten.controller;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -21,30 +21,32 @@ public class CustomSuccessHandle extends SimpleUrlAuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Override
-    protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        String targetUrl = daterminTargetUrl(request, request, authentication);
+    protected void handle(HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.Authentication authentication) throws IOException, ServletException {
+        String targetUrl = determineTargetUrl(request, response, authentication);
         if (response.isCommitted()) {
             return;
         }
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
-    protected String daterminTargetUrl(Authentication authentication) {
+    protected String determineTargetUrl(Authentication authentication) {
         String url;
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         List<String> roles = new ArrayList<>();
+
         for (GrantedAuthority a : authorities) {
             roles.add(a.getAuthority());
         }
         if (isDba(roles)) {
             url = "/dba";
-        }else if (isAdmin(roles)) {
+        } else if (isAdmin(roles)) {
             url = "/admin";
         } else if (isUser(roles)) {
             url = "/user";
         } else {
             url = "/accessDenied";
         }
+
         return url;
     }
 
